@@ -75,7 +75,7 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener 
                 public void onClick(View view) {
 
                     Bundle bundle = new Bundle();
-                    bundle.putParcelable("data", storyVO);
+                    bundle.putParcelable("storyVo", storyVO);
                     navigateWithData(EventAddActivity.class, bundle);
 
                 }

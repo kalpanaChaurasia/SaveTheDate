@@ -56,4 +56,9 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryHolder> implements R
         intent.putExtra("data", stories.get(position));
         context.startActivity(intent);
     }
+
+    @Override
+    public void onDefaultClick(View v) {
+
+    }
 }

@@ -14,25 +14,41 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.arunsoorya.savethedate.StoryActivity">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose Story" />
 
-    <android.support.design.widget.TextInputEditText
-        android:id="@+id/event_name"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/email_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Event name" />
+        android:hint="Event name">
 
-    <android.support.design.widget.TextInputEditText
-        android:id="@+id/event_desc"
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/event_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/desc_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Event Details" />
+        android:hint="Event Details">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/event_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </android.support.design.widget.TextInputLayout>
 
     <TextView
+        android:id="@+id/choose_date"
         android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
         android:gravity="center_vertical"
         android:paddingLeft="5dp"
-        android:id="@+id/choose_date"
-        android:layout_height="?attr/actionBarSize"
         android:text="Choose Date" />
 
     <Button

@@ -2,14 +2,21 @@ package com.arunsoorya.savethedate;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Calendar;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by arunsoorya on 19/01/17.
@@ -21,12 +28,33 @@ public class BaseActivity extends AppCompatActivity {
     public static String EVENTS = "/Events/";
     public static String EVENTIDS = "eventIds";
 
+    @BindView(R.id.container)
+    ViewGroup container;
+    @BindView(R.id.progress_layout)
+    View progressLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_base);
+        ButterKnife.bind(this);
 
+    }
 
+    protected void setContentLayout(@LayoutRes int layoutId){
+        View view = LayoutInflater.from(this).inflate(layoutId,null, false);
+        container.addView(view);
+        progressLayout.setVisibility(View.GONE);
+    }
+
+    protected void showLoading() {
+        container.setVisibility(View.GONE);
+        progressLayout.setVisibility(View.VISIBLE);
+    }
+
+    protected void dismissLoading() {
+        container.setVisibility(View.VISIBLE);
+        progressLayout.setVisibility(View.GONE);
     }
 
     public String getStoryEventPath(String storyId) {

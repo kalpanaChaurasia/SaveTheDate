@@ -3,6 +3,7 @@ package com.arunsoorya.savethedate.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.arunsoorya.savethedate.utils.Utils;
 import com.google.firebase.database.Exclude;
 
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public class EventVO implements Parcelable {
     private String eventDesc;
     private String eventDate;
     private String eventImage;
+    private int viewType;
 
     @Exclude
     public Map<String, Object> toMap() {
@@ -79,6 +81,26 @@ public class EventVO implements Parcelable {
         this.eventImage = eventImage;
     }
 
+    public EventVO() {
+    }
+
+    public String getStoryId() {
+        return storyId;
+    }
+
+    public void setStoryId(String storyId) {
+        this.storyId = storyId;
+    }
+
+    @Utils.RecycleViewType
+    public int getViewType() {
+        return viewType;
+    }
+
+    public void setViewType(@Utils.RecycleViewType int viewType) {
+        this.viewType = viewType;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -87,21 +109,22 @@ public class EventVO implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.eventId);
+        dest.writeString(this.storyId);
         dest.writeString(this.eventName);
         dest.writeString(this.eventDesc);
         dest.writeString(this.eventDate);
         dest.writeString(this.eventImage);
-    }
-
-    public EventVO() {
+        dest.writeInt(this.viewType);
     }
 
     protected EventVO(Parcel in) {
         this.eventId = in.readString();
+        this.storyId = in.readString();
         this.eventName = in.readString();
         this.eventDesc = in.readString();
         this.eventDate = in.readString();
         this.eventImage = in.readString();
+        this.viewType = in.readInt();
     }
 
     public static final Creator<EventVO> CREATOR = new Creator<EventVO>() {
@@ -115,12 +138,4 @@ public class EventVO implements Parcelable {
             return new EventVO[size];
         }
     };
-
-    public String getStoryId() {
-        return storyId;
-    }
-
-    public void setStoryId(String storyId) {
-        this.storyId = storyId;
-    }
 }

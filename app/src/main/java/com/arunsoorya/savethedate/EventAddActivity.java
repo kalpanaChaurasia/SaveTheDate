@@ -36,14 +36,15 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
     @BindView(R.id.choose_date)
     TextView chooseDate;
     private DatabaseReference mDatabase;
-    private StoryVO storyVO;
+    private String storyId;
     private static DateChangeListener dateChangeListener;
     private Calendar selectedDate;
+    private EventVO event;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_event_add);
+        setContentLayout(R.layout.activity_event_add);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
@@ -52,9 +53,16 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
         submit.setOnClickListener(this);
         chooseDate.setOnClickListener(this);
         dateChangeListener = this;
-        if (getIntent() != null)
-            storyVO = getIntent().getParcelableExtra("data");
+        if (getIntent() != null) {
+            if (getIntent().hasExtra("storyVo")) {
+                StoryVO storyVO = getIntent().getParcelableExtra("storyVo");
+                storyId = storyVO.getStoryId();
+            } else if (getIntent().hasExtra("eventVo")) {
+                event = getIntent().getParcelableExtra("eventVo");
+                storyId = event.getStoryId();
+            }
 
+        }
     }
 
     @Override
@@ -67,7 +75,7 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
                 int year = selectedDate.get(Calendar.YEAR);
                 int month = selectedDate.get(Calendar.MONTH);
                 int day = selectedDate.get(Calendar.DAY_OF_MONTH);
-                DialogFragment newFragment =  DatePickerFragment.getInstance(new int[]{year,month,day});
+                DialogFragment newFragment = DatePickerFragment.getInstance(new int[]{year, month, day});
                 newFragment.show(getSupportFragmentManager(), "datePicker");
                 break;
         }
@@ -79,14 +87,18 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
 
         String eventPath = getEventsPath() + selectedDateWithoutYear.concat("/");
         String keyEvent = mDatabase.child(eventPath).push().getKey();
-        String keyEventStory = mDatabase.child(getStoryEventPath(storyVO.getStoryId())).push().getKey();
 
-        EventVO eventVO = new EventVO(storyVO.getStoryId(), eventName.getText().toString(),
-                eventDesc.getText().toString(), seldDate);
         Map<String, Object> childUpdates = new HashMap<>();
+        EventVO eventVO = new EventVO(storyId, eventName.getText().toString(),
+                eventDesc.getText().toString(), seldDate);
+        if (storyId != null) {
+            String keyEventStory = mDatabase.child(getStoryEventPath(storyId)).push().getKey();
+            //updating event inside stories
+            childUpdates.put(getStoryEventPath(storyId).concat("/") + keyEventStory, eventVO.toMap());
+        }
+
         childUpdates.put(eventPath.concat(keyEvent), eventVO.toMap());
-        //updating event inside stories
-        childUpdates.put(getStoryEventPath(storyVO.getStoryId()).concat("/") + keyEventStory, eventVO.toMap());
+
         mDatabase.updateChildren(childUpdates);
         mDatabase.addValueEventListener(valueEventListener);
     }

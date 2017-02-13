@@ -21,6 +21,7 @@ import com.arunsoorya.savethedate.adapter.EventAdapter;
 import com.arunsoorya.savethedate.model.EventVO;
 import com.arunsoorya.savethedate.utils.DateChangeListener;
 import com.arunsoorya.savethedate.utils.DatePickerFragment;
+import com.arunsoorya.savethedate.utils.Utils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -55,7 +56,7 @@ public class HomeActivity extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentLayout(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
@@ -84,12 +85,21 @@ public class HomeActivity extends BaseActivity
     }
 
     private void setUpRecyclerView() {
-        recyclerView.setLayoutManager(new GridLayoutManager(this,3));
+
+        pushNewItemAddToTheEnd();
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         recyclerView.setAdapter(new EventAdapter(eventVOs, this));
         selectDate.setOnClickListener(this);
         selectedDate = Calendar.getInstance();
+        showLoading();
         rootRef = FirebaseDatabase.getInstance().getReference(getEventsPath());
         rootRef.addValueEventListener(eventListListener);
+    }
+
+    private void pushNewItemAddToTheEnd() {
+        EventVO eventVO = new EventVO();
+        eventVO.setViewType(Utils.RECYCLE_TYPE_ADD);
+        eventVOs.add(eventVO);
     }
 
     @Override
@@ -112,6 +122,7 @@ public class HomeActivity extends BaseActivity
         public void onDataChange(DataSnapshot dataSnapshot) {
             HomeActivity.this.dataSnapshot = dataSnapshot;
             showEventsOnTheDate();
+            dismissLoading();
         }
 
         @Override
@@ -131,6 +142,7 @@ public class HomeActivity extends BaseActivity
             eventVO = postSnapshot.getValue(EventVO.class);
             eventVOs.add(eventVO);
         }
+        pushNewItemAddToTheEnd();
         recyclerView.getAdapter().notifyDataSetChanged();
     }
 
