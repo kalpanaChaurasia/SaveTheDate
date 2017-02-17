@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,8 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.w3c.dom.Text;
 
 import java.util.Calendar;
 
@@ -47,6 +50,9 @@ public class BaseActivity extends AppCompatActivity {
         progressLayout.setVisibility(View.GONE);
     }
 
+    protected boolean isEmpty(String val){
+        return TextUtils.isEmpty(val);
+    }
     protected void showLoading() {
         container.setVisibility(View.GONE);
         progressLayout.setVisibility(View.VISIBLE);

@@ -3,29 +3,38 @@ package com.arunsoorya.savethedate;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.arunsoorya.savethedate.adapter.StoryAdapter;
+import com.arunsoorya.savethedate.adapter.StoryNameAdapter;
 import com.arunsoorya.savethedate.model.EventVO;
 import com.arunsoorya.savethedate.model.StoryVO;
 import com.arunsoorya.savethedate.utils.DateChangeListener;
 import com.arunsoorya.savethedate.utils.DatePickerFragment;
+import com.arunsoorya.savethedate.utils.RecyclerClickListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class EventAddActivity extends BaseActivity implements View.OnClickListener, DateChangeListener {
+public class EventAddActivity extends BaseActivity implements View.OnClickListener, DateChangeListener, RecyclerClickListener {
     @BindView(R.id.event_name)
     TextInputEditText eventName;
     @BindView(R.id.event_desc)
@@ -35,11 +44,15 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
     Button submit;
     @BindView(R.id.choose_date)
     TextView chooseDate;
+
+    @BindView(R.id.recyclerview)
+    RecyclerView recyclerView;
     private DatabaseReference mDatabase;
     private String storyId;
     private static DateChangeListener dateChangeListener;
     private Calendar selectedDate;
     private EventVO event;
+    private List<StoryVO> storyVOs = new ArrayList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,15 +74,18 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
                 event = getIntent().getParcelableExtra("eventVo");
                 storyId = event.getStoryId();
             }
-
         }
+        showStoryList();
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.submit:
-                submit();
+                if (isValid())
+                    submit();
+                else
+                    showToast("plz fill all fields");
                 break;
             case R.id.choose_date:
                 int year = selectedDate.get(Calendar.YEAR);
@@ -79,6 +95,20 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
                 newFragment.show(getSupportFragmentManager(), "datePicker");
                 break;
         }
+    }
+
+    private void showStoryList() {
+        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL));
+        recyclerView.setAdapter(new StoryNameAdapter(storyVOs, this, storyId));
+
+        mDatabase = FirebaseDatabase.getInstance().getReference(getStoryPath());
+        mDatabase.addValueEventListener(storyListListener);
+    }
+
+    private boolean isValid() {
+        return (!isEmpty(eventName.getText().toString())
+                && !isEmpty(eventDesc.getText().toString())
+                && !isEmpty(chooseDate.getText().toString()));
     }
 
     private void submit() {
@@ -124,10 +154,30 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
         }
     };
 
+    ValueEventListener storyListListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            storyVOs.clear();
+            StoryVO storyVO;
+            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                storyVO = postSnapshot.getValue(StoryVO.class);
+                storyVOs.add(storyVO);
+            }
+            recyclerView.getAdapter().notifyDataSetChanged();
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mDatabase.removeEventListener(valueEventListener);
+        mDatabase.removeEventListener(storyListListener);
     }
 
     @Override
@@ -135,6 +185,16 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
         chooseDate.setText(day + "-" + month + "-" + year);
 //        chooseDate.setTag(new int[]{year, month, day});
         selectedDate = getSelectedDate(year, month, day);
+
     }
 
+    @Override
+    public void onItemClick(int position, View v) {
+        storyId = storyVOs.get(position).getStoryId();
+    }
+
+    @Override
+    public void onDefaultClick(View v) {
+
+    }
 }
