@@ -31,7 +31,7 @@ public class StoryListActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_story_list);
+        setContentLayout(R.layout.activity_story_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
@@ -52,12 +52,13 @@ public class StoryListActivity extends BaseActivity {
 
         mDatabase = FirebaseDatabase.getInstance().getReference(getStoryPath());
         mDatabase.addValueEventListener(valueEventListener);
+        showLoading();
     }
 
     ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-
+dismissLoading();
             storyVOs.clear();
             StoryVO storyVO;
             for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {

@@ -47,7 +47,8 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
 
     @BindView(R.id.recyclerview)
     RecyclerView recyclerView;
-    private DatabaseReference mDatabase;
+    private DatabaseReference getStoryRef;
+    private DatabaseReference updateRef;
     private String storyId;
     private static DateChangeListener dateChangeListener;
     private Calendar selectedDate;
@@ -62,7 +63,7 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
         selectedDate = Calendar.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        updateRef = FirebaseDatabase.getInstance().getReference();
         submit.setOnClickListener(this);
         chooseDate.setOnClickListener(this);
         dateChangeListener = this;
@@ -101,8 +102,8 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL));
         recyclerView.setAdapter(new StoryNameAdapter(storyVOs, this, storyId));
 
-        mDatabase = FirebaseDatabase.getInstance().getReference(getStoryPath());
-        mDatabase.addValueEventListener(storyListListener);
+        getStoryRef = FirebaseDatabase.getInstance().getReference(getStoryPath());
+        getStoryRef.addValueEventListener(storyListListener);
     }
 
     private boolean isValid() {
@@ -116,21 +117,21 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
         String selectedDateWithoutYear = generateEventId(selectedDate);
 
         String eventPath = getEventsPath() + selectedDateWithoutYear.concat("/");
-        String keyEvent = mDatabase.child(eventPath).push().getKey();
+        String keyEvent = updateRef.child(eventPath).push().getKey();
 
         Map<String, Object> childUpdates = new HashMap<>();
         EventVO eventVO = new EventVO(storyId, eventName.getText().toString(),
                 eventDesc.getText().toString(), seldDate);
         if (storyId != null) {
-            String keyEventStory = mDatabase.child(getStoryEventPath(storyId)).push().getKey();
+            String keyEventStory = updateRef.child(getStoryEventPath(storyId)).push().getKey();
             //updating event inside stories
             childUpdates.put(getStoryEventPath(storyId).concat("/") + keyEventStory, eventVO.toMap());
         }
 
         childUpdates.put(eventPath.concat(keyEvent), eventVO.toMap());
 
-        mDatabase.updateChildren(childUpdates);
-        mDatabase.addValueEventListener(valueEventListener);
+        updateRef.updateChildren(childUpdates);
+        updateRef.addValueEventListener(valueEventListener);
     }
 
     public String generateEventId(Calendar timeStamp) {
@@ -176,8 +177,8 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mDatabase.removeEventListener(valueEventListener);
-        mDatabase.removeEventListener(storyListListener);
+        updateRef.removeEventListener(valueEventListener);
+        getStoryRef.removeEventListener(storyListListener);
     }
 
     @Override
