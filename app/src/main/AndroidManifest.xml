@@ -34,16 +34,24 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.arunsoorya.savethedate.BaseActivity" />
+                android:value="com.arunsoorya.savethedate.HomeActivity" />
         </activity>
         <activity
             android:name="com.arunsoorya.savethedate.StoryActivity"
             android:label="@string/title_activity_story"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.arunsoorya.savethedate.StoryListActivity" />
+        </activity>
         <activity
             android:name="com.arunsoorya.savethedate.EventAddActivity"
             android:label="@string/title_activity_event_add"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.arunsoorya.savethedate.HomeActivity" />
+        </activity>
     </application>
 
 </manifest>

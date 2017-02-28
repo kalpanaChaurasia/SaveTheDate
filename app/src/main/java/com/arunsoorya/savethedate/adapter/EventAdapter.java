@@ -1,13 +1,11 @@
 package com.arunsoorya.savethedate.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.arunsoorya.savethedate.EventAddActivity;
 import com.arunsoorya.savethedate.R;
 import com.arunsoorya.savethedate.model.EventVO;
 import com.arunsoorya.savethedate.utils.RecyclerClickListener;
@@ -22,12 +20,15 @@ import java.util.List;
 public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerClickListener {
 
 
+    private RecyclerClickListener recyclerClickListener;
     private List<EventVO> eventVOs;
     private Context context;
 
     public EventAdapter(List<EventVO> eventVOs, Context context) {
         this.context = context;
         this.eventVOs = eventVOs;
+        if (context instanceof RecyclerClickListener)
+            recyclerClickListener = (RecyclerClickListener) context;
     }
 
     @Override
@@ -84,14 +85,11 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onItemClick(int position, View v) {
-        Intent intent = new Intent(context, EventAddActivity.class);
-        intent.putExtra("data", eventVOs.get(position));
-        context.startActivity(intent);
+        recyclerClickListener.onItemClick(position, v);
     }
 
     @Override
     public void onDefaultClick(View v) {
-        Intent intent = new Intent(context, EventAddActivity.class);
-        context.startActivity(intent);
+        recyclerClickListener.onDefaultClick(v);
     }
 }

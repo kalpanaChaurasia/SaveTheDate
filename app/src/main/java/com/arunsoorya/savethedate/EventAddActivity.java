@@ -5,20 +5,17 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.arunsoorya.savethedate.adapter.StoryAdapter;
 import com.arunsoorya.savethedate.adapter.StoryNameAdapter;
 import com.arunsoorya.savethedate.model.EventVO;
 import com.arunsoorya.savethedate.model.StoryVO;
 import com.arunsoorya.savethedate.utils.DateChangeListener;
 import com.arunsoorya.savethedate.utils.DatePickerFragment;
 import com.arunsoorya.savethedate.utils.RecyclerClickListener;
+import com.arunsoorya.savethedate.utils.Utils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,13 +51,13 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
     private Calendar selectedDate;
     private EventVO event;
     private List<StoryVO> storyVOs = new ArrayList();
+    private boolean isEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentLayout(R.layout.activity_event_add);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setContentLayout(R.layout.content_event_add);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ButterKnife.bind(this);
         selectedDate = Calendar.getInstance();
         updateRef = FirebaseDatabase.getInstance().getReference();
@@ -71,12 +68,24 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
             if (getIntent().hasExtra("storyVo")) {
                 StoryVO storyVO = getIntent().getParcelableExtra("storyVo");
                 storyId = storyVO.getStoryId();
-            } else if (getIntent().hasExtra("eventVo")) {
+            }
+            if (getIntent().hasExtra("eventVo")) {
                 event = getIntent().getParcelableExtra("eventVo");
+                isEdit = true;
                 storyId = event.getStoryId();
+                setEventDataToView();
             }
         }
         showStoryList();
+    }
+
+    private void setEventDataToView() {
+        eventName.setText(event.getEventName());
+        eventDesc.setText(event.getEventDesc());
+        chooseDate.setText(event.getEventDate());
+
+        selectedDate.setTimeInMillis(Long.parseLong(event.getEventDate()));
+        setdateInText(selectedDate);
     }
 
     @Override
@@ -99,7 +108,8 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void showStoryList() {
-        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL));
+//        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(new StoryNameAdapter(storyVOs, this, storyId));
 
         getStoryRef = FirebaseDatabase.getInstance().getReference(getStoryPath());
@@ -117,15 +127,20 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
         String selectedDateWithoutYear = generateEventId(selectedDate);
 
         String eventPath = getEventsPath() + selectedDateWithoutYear.concat("/");
-        String keyEvent = updateRef.child(eventPath).push().getKey();
+        String keyEvent;
+        if (isEdit)
+            keyEvent = event.getEventKey();
+        else
+            keyEvent = updateRef.child(eventPath).push().getKey();
 
         Map<String, Object> childUpdates = new HashMap<>();
         EventVO eventVO = new EventVO(storyId, eventName.getText().toString(),
                 eventDesc.getText().toString(), seldDate);
+        eventVO.setEventKey(keyEvent);
         if (storyId != null) {
-            String keyEventStory = updateRef.child(getStoryEventPath(storyId)).push().getKey();
+//            String keyEventStory = updateRef.child(getStoryEventPath(storyId)).push().getKey();
             //updating event inside stories
-            childUpdates.put(getStoryEventPath(storyId).concat("/") + keyEventStory, eventVO.toMap());
+            childUpdates.put(getStoryEventPath(storyId).concat("/") + keyEvent, eventVO.toMap());
         }
 
         childUpdates.put(eventPath.concat(keyEvent), eventVO.toMap());
@@ -164,6 +179,7 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
                 storyVO = postSnapshot.getValue(StoryVO.class);
                 storyVOs.add(storyVO);
             }
+            pushNewItemAddToTheEnd();
             recyclerView.getAdapter().notifyDataSetChanged();
 
         }
@@ -173,6 +189,11 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
 
         }
     };
+    private void pushNewItemAddToTheEnd() {
+        StoryVO storyVO = new StoryVO();
+        storyVO.setViewType(Utils.RECYCLE_TYPE_ADD);
+        storyVOs.add(storyVO);
+    }
 
     @Override
     protected void onDestroy() {
@@ -183,10 +204,14 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public void onDateSet(int year, int month, int day) {
-        chooseDate.setText(day + "-" + month + "-" + year);
-//        chooseDate.setTag(new int[]{year, month, day});
         selectedDate = getSelectedDate(year, month, day);
+        setdateInText(selectedDate);
 
+    }
+
+    private void setdateInText(Calendar calendar){
+        chooseDate.setText(calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH)
+                + "-" + calendar.get(Calendar.DAY_OF_MONTH));
     }
 
     @Override
@@ -196,6 +221,6 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public void onDefaultClick(View v) {
-
+        navigate(StoryActivity.class, "storyAdd");
     }
 }

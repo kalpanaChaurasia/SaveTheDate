@@ -1,5 +1,6 @@
 package com.arunsoorya.savethedate;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +22,7 @@ import com.arunsoorya.savethedate.adapter.EventAdapter;
 import com.arunsoorya.savethedate.model.EventVO;
 import com.arunsoorya.savethedate.utils.DateChangeListener;
 import com.arunsoorya.savethedate.utils.DatePickerFragment;
+import com.arunsoorya.savethedate.utils.RecyclerClickListener;
 import com.arunsoorya.savethedate.utils.Utils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,7 +41,7 @@ import butterknife.ButterKnife;
 
 
 public class HomeActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, DateChangeListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, DateChangeListener,RecyclerClickListener {
 
     private String token;
 
@@ -78,7 +80,6 @@ public class HomeActivity extends BaseActivity
 
     private void setUpRecyclerView() {
 
-        pushNewItemAddToTheEnd();
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         recyclerView.setAdapter(new EventAdapter(eventVOs, this));
         selectDate.setOnClickListener(this);
@@ -126,8 +127,7 @@ public class HomeActivity extends BaseActivity
     private void showEventsOnTheDate() {
         eventVOs.clear();
         EventVO eventVO;
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(selectedDate.getTimeInMillis());
+        Calendar calendar = getSelectedDate(selectedDate);
         calendar.set(Calendar.YEAR, 0);
         DataSnapshot eventSnapShot = dataSnapshot.child(String.valueOf(calendar.getTimeInMillis()));
         for (DataSnapshot postSnapshot : eventSnapShot.getChildren()) {
@@ -235,5 +235,17 @@ public class HomeActivity extends BaseActivity
 //        chooseDate.setTag(new int[]{year, month, day});
         selectedDate = getSelectedDate(year, month, day);
         showEventsOnTheDate();
+    }
+
+    @Override
+    public void onItemClick(int position, View v) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("eventVo", eventVOs.get(position));
+        navigateWithData(EventAddActivity.class, bundle);
+    }
+
+    @Override
+    public void onDefaultClick(View v) {
+        navigate(EventAddActivity.class);
     }
 }

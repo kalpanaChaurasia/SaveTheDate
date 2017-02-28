@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +37,8 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
 //        ButterKnife.bind(this);
-
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         container = (ViewGroup) findViewById(R.id.container);
         progressLayout = findViewById(R.id.progress_layout);
     }
@@ -110,6 +112,16 @@ public class BaseActivity extends AppCompatActivity {
     public Calendar getSelectedDate(int... ymd) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(ymd[0], ymd[1], ymd[2]);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar;
+
+    }
+    public Calendar getSelectedDate(Calendar calendarPas) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(calendarPas.getTimeInMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);

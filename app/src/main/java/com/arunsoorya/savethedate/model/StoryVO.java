@@ -3,6 +3,7 @@ package com.arunsoorya.savethedate.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.arunsoorya.savethedate.utils.Utils;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
@@ -20,7 +21,7 @@ public class StoryVO implements Parcelable {
     private String storyId;
     private String storyName;
     private String storyDate;
-
+    private int viewType;
     private List<EventVO> eventIds;
 
     public String getStoryId() {
@@ -116,6 +117,7 @@ public class StoryVO implements Parcelable {
         dest.writeString(this.storyDate);
         dest.writeTypedList(this.eventIds);
         dest.writeString(this.storyDesc);
+        dest.writeInt(this.viewType);
     }
 
     protected StoryVO(Parcel in) {
@@ -124,6 +126,7 @@ public class StoryVO implements Parcelable {
         this.storyDate = in.readString();
         this.eventIds = in.createTypedArrayList(EventVO.CREATOR);
         this.storyDesc = in.readString();
+        this.viewType = in.readInt();
     }
 
     public static final Creator<StoryVO> CREATOR = new Creator<StoryVO>() {
@@ -137,4 +140,12 @@ public class StoryVO implements Parcelable {
             return new StoryVO[size];
         }
     };
+    @Utils.RecycleViewType
+    public int getViewType() {
+        return viewType;
+    }
+
+    public void setViewType(@Utils.RecycleViewType int viewType) {
+        this.viewType = viewType;
+    }
 }

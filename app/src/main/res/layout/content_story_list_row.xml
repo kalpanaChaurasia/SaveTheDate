@@ -4,15 +4,17 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_view"
     android:layout_width="100dp"
-    android:elevation="3dp"
-    android:layout_height="100dp"
-    android:layout_marginBottom="16dp"
+    android:layout_height="wrap_content"
+    android:minHeight="50dp"
+    card_view:cardBackgroundColor="#ffffff"
     card_view:cardCornerRadius="4dp"
+    card_view:cardElevation="3dp"
     card_view:cardUseCompatPadding="true">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:padding="10dp"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
@@ -20,18 +22,18 @@
             android:id="@+id/item_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|start"
-            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textColor="@color/textColor"
             android:layout_marginTop="8dp"
-            android:text="Some date" />
+            android:text="Some datedfsdfsdfsfsfsfdfdfsfsdfsdfdsf" />
 
         <TextView
             android:id="@+id/item_description"
-            android:textColor="#ffffff"
-            android:layout_width="wrap_content"
+            android:textColor="@color/textColor"
+            android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="wrap_content"
-            android:layout_gravity="center|start"
             android:ellipsize="end"
-            android:maxLines="2" />
+            android:lines="1" />
     </LinearLayout>
 </android.support.v7.widget.CardView>
