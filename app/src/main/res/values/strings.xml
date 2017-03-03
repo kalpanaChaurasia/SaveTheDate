@@ -10,4 +10,6 @@
     <string name="title_activity_story_list">StoryListActivity</string>
     <string name="title_activity_story">StoryActivity</string>
     <string name="title_activity_event_add">EventAddActivity</string>
+    <string name="low_storage_error">no storage</string>
+    <string name="title_activity_events_in_stories">EventsInStories</string>
 </resources>

@@ -3,6 +3,7 @@ package com.arunsoorya.savethedate;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +14,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -21,7 +24,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class SignUp extends BaseActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+public class SignUp extends BaseActivity implements GoogleApiClient.OnConnectionFailedListener,
+        View.OnClickListener,GoogleApiClient.ConnectionCallbacks {
 
     private static final int RC_SIGN_IN = 11;
     private static final String TAG = "Signup";
@@ -37,7 +41,6 @@ public class SignUp extends BaseActivity implements GoogleApiClient.OnConnection
         setSupportActionBar(toolbar);
 
         findViewById(R.id.sign_in_button).setOnClickListener(this);
-        findViewById(R.id.signout).setOnClickListener(this);
         googleSignUp();
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -46,7 +49,7 @@ public class SignUp extends BaseActivity implements GoogleApiClient.OnConnection
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     showToast("firebase signin completed");
-                    navigate(HomeActivity.class);
+                    navigateWithResult(HomeActivity.class, 101);
                 } else {
                     showToast("firebase signout");
                 }
@@ -77,14 +80,22 @@ public class SignUp extends BaseActivity implements GoogleApiClient.OnConnection
                 .build();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
+        mGoogleApiClient.connect();
     }
 
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -102,6 +113,14 @@ public class SignUp extends BaseActivity implements GoogleApiClient.OnConnection
                 // Google Sign In failed, update UI appropriately
                 // ...
                 showToast("google signp failed");
+            }
+        } else if (requestCode == 101) {
+
+            if (resultCode == RESULT_OK) {
+                FirebaseAuth.getInstance().signOut();
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+            } else {
+                finish();
             }
         }
     }
@@ -128,11 +147,6 @@ public class SignUp extends BaseActivity implements GoogleApiClient.OnConnection
                 });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-    }
 
     private void firebaseAuth() {
 
@@ -150,10 +164,16 @@ public class SignUp extends BaseActivity implements GoogleApiClient.OnConnection
             case R.id.sign_in_button:
                 signIn();
                 break;
-            case R.id.signout:
-                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-                FirebaseAuth.getInstance().signOut();
-                break;
         }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
     }
 }

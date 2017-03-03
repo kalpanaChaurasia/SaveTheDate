@@ -3,6 +3,7 @@ package com.arunsoorya.savethedate;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -108,12 +109,13 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void showStoryList() {
-//        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.HORIZONTAL));
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3, LinearLayoutManager.HORIZONTAL, false));
+//        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(new StoryNameAdapter(storyVOs, this, storyId));
 
         getStoryRef = FirebaseDatabase.getInstance().getReference(getStoryPath());
         getStoryRef.addValueEventListener(storyListListener);
+        showLoading();
     }
 
     private boolean isValid() {
@@ -181,7 +183,7 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
             }
             pushNewItemAddToTheEnd();
             recyclerView.getAdapter().notifyDataSetChanged();
-
+            dismissLoading();
         }
 
         @Override
@@ -189,6 +191,7 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
 
         }
     };
+
     private void pushNewItemAddToTheEnd() {
         StoryVO storyVO = new StoryVO();
         storyVO.setViewType(Utils.RECYCLE_TYPE_ADD);
@@ -209,7 +212,7 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
 
     }
 
-    private void setdateInText(Calendar calendar){
+    private void setdateInText(Calendar calendar) {
         chooseDate.setText(calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH)
                 + "-" + calendar.get(Calendar.DAY_OF_MONTH));
     }

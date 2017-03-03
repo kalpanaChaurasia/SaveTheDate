@@ -93,6 +93,11 @@ public class BaseActivity extends AppCompatActivity {
         navigate(clas, null);
     }
 
+    public void navigateWithResult(Class clas, int requestCode) {
+        Intent intent = new Intent(this, clas);
+        startActivityForResult(intent, requestCode);
+    }
+
     public void navigate(Class clas, String params) {
         Intent intent = new Intent(this, clas);
         if (params != null) {
@@ -119,6 +124,7 @@ public class BaseActivity extends AppCompatActivity {
         return calendar;
 
     }
+
     public Calendar getSelectedDate(Calendar calendarPas) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(calendarPas.getTimeInMillis());

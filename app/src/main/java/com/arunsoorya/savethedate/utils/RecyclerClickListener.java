@@ -7,6 +7,9 @@ import android.view.View;
  */
 
 public interface RecyclerClickListener {
+    interface eventEditListener{
+        void onEventEdit(View v, int position);
+    }
     void onItemClick(int position, View v);
     void onDefaultClick(View v);
 }

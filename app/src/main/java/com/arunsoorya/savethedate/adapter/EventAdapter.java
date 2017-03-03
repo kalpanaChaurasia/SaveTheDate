@@ -17,10 +17,11 @@ import java.util.List;
  * Created by arunsoorya on 26/01/17.
  */
 
-public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerClickListener {
+public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerClickListener, RecyclerClickListener.eventEditListener {
 
 
     private RecyclerClickListener recyclerClickListener;
+    private RecyclerClickListener.eventEditListener editListener;
     private List<EventVO> eventVOs;
     private Context context;
 
@@ -29,6 +30,8 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.eventVOs = eventVOs;
         if (context instanceof RecyclerClickListener)
             recyclerClickListener = (RecyclerClickListener) context;
+        if (context instanceof RecyclerClickListener.eventEditListener)
+            editListener = (RecyclerClickListener.eventEditListener) context;
     }
 
     @Override
@@ -51,9 +54,8 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             case Utils.RECYCLE_TYPE_NORMAL:
 
                 inflatedView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.content_story_list_row, parent, false);
-                StoryHolder storyHolder = new StoryHolder(inflatedView, context);
-                storyHolder.setOnItemClickListener(this);
+                        .inflate(R.layout.content_event_list_row, parent, false);
+                EventHolder storyHolder = new EventHolder(inflatedView, this);
                 holder = storyHolder;
                 break;
 
@@ -68,9 +70,10 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             case Utils.RECYCLE_TYPE_ADD:
                 break;
             case Utils.RECYCLE_TYPE_NORMAL:
-                StoryHolder storyHolder = (StoryHolder) holder;
+                EventHolder storyHolder = (EventHolder) holder;
                 storyHolder.title.setText(eventVOs.get(position).getEventName());
                 storyHolder.desc.setText(eventVOs.get(position).getEventDesc());
+                storyHolder.date.setText(Utils.getFormatedTime(eventVOs.get(position).getEventDate()));
                 break;
 
         }
@@ -91,5 +94,11 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onDefaultClick(View v) {
         recyclerClickListener.onDefaultClick(v);
+    }
+
+    @Override
+    public void onEventEdit(View v, int position) {
+        if(editListener!= null)
+        editListener.onEventEdit(v, position);
     }
 }

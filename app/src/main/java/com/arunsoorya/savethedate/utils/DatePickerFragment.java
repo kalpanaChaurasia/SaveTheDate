@@ -1,11 +1,14 @@
 package com.arunsoorya.savethedate.utils;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
+
+import com.arunsoorya.savethedate.R;
 
 import java.util.Calendar;
 
@@ -61,7 +64,7 @@ public class DatePickerFragment extends DialogFragment
         }
 
         // Create a new instance of DatePickerDialog and return it
-        return new DatePickerDialog(getActivity(), this, year, month, day);
+        return new DatePickerDialog(getActivity(),this, year, month, day);
     }
 
     public void onDateSet(DatePicker view, int year, int month, int day) {

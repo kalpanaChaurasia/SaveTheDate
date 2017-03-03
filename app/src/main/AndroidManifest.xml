@@ -9,7 +9,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.arunsoorya.savethedate.SignUp"
+            android:name=".SignUp"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,34 +24,39 @@
             android:theme="@style/AppTheme.NoActionBar"></activity>
         -->
         <activity
-            android:name="com.arunsoorya.savethedate.HomeActivity"
+            android:name=".HomeActivity"
             android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme" />
         <activity
-            android:name="com.arunsoorya.savethedate.StoryListActivity"
+            android:name=".StoryListActivity"
             android:label="@string/title_activity_story_list"
-            android:parentActivityName="com.arunsoorya.savethedate.HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".HomeActivity"
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.arunsoorya.savethedate.HomeActivity" />
         </activity>
         <activity
-            android:name="com.arunsoorya.savethedate.StoryActivity"
+            android:name=".StoryActivity"
             android:label="@string/title_activity_story"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.arunsoorya.savethedate.StoryListActivity" />
         </activity>
         <activity
-            android:name="com.arunsoorya.savethedate.EventAddActivity"
+            android:name=".EventAddActivity"
             android:label="@string/title_activity_event_add"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.arunsoorya.savethedate.HomeActivity" />
         </activity>
+        <activity android:name=".utils.ImageReadActivity" />
+        <activity
+            android:name=".EventsInStories"
+            android:label="@string/title_activity_events_in_stories"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>

@@ -1,16 +1,14 @@
 package com.arunsoorya.savethedate;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -24,6 +22,12 @@ import com.arunsoorya.savethedate.utils.DateChangeListener;
 import com.arunsoorya.savethedate.utils.DatePickerFragment;
 import com.arunsoorya.savethedate.utils.RecyclerClickListener;
 import com.arunsoorya.savethedate.utils.Utils;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -41,7 +45,9 @@ import butterknife.ButterKnife;
 
 
 public class HomeActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, DateChangeListener,RecyclerClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        View.OnClickListener, DateChangeListener, RecyclerClickListener,
+        GoogleApiClient.OnConnectionFailedListener{
 
     private String token;
 
@@ -129,6 +135,8 @@ public class HomeActivity extends BaseActivity
         EventVO eventVO;
         Calendar calendar = getSelectedDate(selectedDate);
         calendar.set(Calendar.YEAR, 0);
+        if(dataSnapshot == null)
+            return;
         DataSnapshot eventSnapShot = dataSnapshot.child(String.valueOf(calendar.getTimeInMillis()));
         for (DataSnapshot postSnapshot : eventSnapShot.getChildren()) {
             eventVO = postSnapshot.getValue(EventVO.class);
@@ -170,6 +178,7 @@ public class HomeActivity extends BaseActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            setResult(RESULT_CANCELED);
             super.onBackPressed();
         }
     }
@@ -208,9 +217,11 @@ public class HomeActivity extends BaseActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_story) {
-            navigate(StoryListActivity.class);
-        } else if (id == R.id.nav_share) {
+        switch (id) {
+            case R.id.nav_story:
+                navigate(StoryListActivity.class);
+                break;
+            case R.id.nav_share:
 //            Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
 //                    .setMessage(getString(R.string.invitation_message))
 //                    .setDeepLink(Uri.parse(getString(R.string.invitation_deep_link)))
@@ -218,8 +229,14 @@ public class HomeActivity extends BaseActivity
 //                    .setCallToActionText(getString(R.string.invitation_cta))
 //                    .build();
 //            startActivityForResult(intent, REQUEST_INVITE);
+                break;
+            case R.id.nav_send:
+                break;
+            case R.id.nav_signout:
+setResult(RESULT_OK);
 
-        } else if (id == R.id.nav_send) {
+finish();
+                break;
 
         }
 
@@ -241,11 +258,16 @@ public class HomeActivity extends BaseActivity
     public void onItemClick(int position, View v) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("eventVo", eventVOs.get(position));
-        navigateWithData(EventAddActivity.class, bundle);
+        navigateWithData(EventsInStories.class, bundle);
     }
 
     @Override
     public void onDefaultClick(View v) {
         navigate(EventAddActivity.class);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 }
