@@ -1,66 +1,36 @@
 package com.arunsoorya.savethedate;
 
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.DialogFragment;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
-import com.arunsoorya.savethedate.adapter.EventAdapter;
-import com.arunsoorya.savethedate.model.EventVO;
-import com.arunsoorya.savethedate.utils.DateChangeListener;
-import com.arunsoorya.savethedate.utils.DatePickerFragment;
-import com.arunsoorya.savethedate.utils.RecyclerClickListener;
-import com.arunsoorya.savethedate.utils.Utils;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
+import com.arunsoorya.savethedate.fragment.HomeFragment;
+import com.arunsoorya.savethedate.fragment.StoriesFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
 public class HomeActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        View.OnClickListener, DateChangeListener, RecyclerClickListener,
-        GoogleApiClient.OnConnectionFailedListener{
-
-    private String token;
-
-    @BindView(R.id.recyclerview)
-    RecyclerView recyclerView;
-
-    @BindView(R.id.selectDate)
-    TextView selectDate;
-
-    private DataSnapshot dataSnapshot;
-    private Calendar selectedDate;
-    private List<EventVO> eventVOs = new ArrayList<>();
-    private DatabaseReference rootRef;
+        implements NavigationView.OnNavigationItemSelectedListener {
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,70 +50,26 @@ public class HomeActivity extends BaseActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         showLoginUserData(navigationView.getHeaderView(0));
-        setUpRecyclerView();
 
+        setUpTab();
     }
 
-    private void setUpRecyclerView() {
+    private void setUpTab() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        setTitle(getString(R.string.app_name));
+        toolbar.setTitleTextColor(Color.WHITE);
+        // Create the adapter that will return a fragment for each of the three
+        // primary sections of the activity.
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        recyclerView.setAdapter(new EventAdapter(eventVOs, this));
-        selectDate.setOnClickListener(this);
-        selectedDate = Calendar.getInstance();
-        showLoading();
-        rootRef = FirebaseDatabase.getInstance().getReference(getEventsPath());
-        rootRef.addValueEventListener(eventListListener);
-    }
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.viewPager);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(3);
 
-    private void pushNewItemAddToTheEnd() {
-        EventVO eventVO = new EventVO();
-        eventVO.setViewType(Utils.RECYCLE_TYPE_ADD);
-        eventVOs.add(eventVO);
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.selectDate:
-                int year = selectedDate.get(Calendar.YEAR);
-                int month = selectedDate.get(Calendar.MONTH);
-                int day = selectedDate.get(Calendar.DAY_OF_MONTH);
-                DialogFragment newFragment = DatePickerFragment.getInstance(new int[]{year, month, day});
-                newFragment.show(getSupportFragmentManager(), "datePicker");
-                break;
-        }
-    }
-
-    ValueEventListener eventListListener = new ValueEventListener() {
-
-
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            HomeActivity.this.dataSnapshot = dataSnapshot;
-            showEventsOnTheDate();
-            dismissLoading();
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
-    };
-
-    private void showEventsOnTheDate() {
-        eventVOs.clear();
-        EventVO eventVO;
-        Calendar calendar = getSelectedDate(selectedDate);
-        calendar.set(Calendar.YEAR, 0);
-        if(dataSnapshot == null)
-            return;
-        DataSnapshot eventSnapShot = dataSnapshot.child(String.valueOf(calendar.getTimeInMillis()));
-        for (DataSnapshot postSnapshot : eventSnapShot.getChildren()) {
-            eventVO = postSnapshot.getValue(EventVO.class);
-            eventVOs.add(eventVO);
-        }
-        pushNewItemAddToTheEnd();
-        recyclerView.getAdapter().notifyDataSetChanged();
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        tabLayout.setupWithViewPager(mViewPager);
     }
 
 
@@ -164,11 +90,6 @@ public class HomeActivity extends BaseActivity
 
             name.setText(nameS);
             desc.setText(email);
-            token = user.getUid();
-            // The user's ID, unique to the Firebase project. Do NOT use this value to
-            // authenticate with your backend server, if you have one. Use
-            // FirebaseUser.getToken() instead.
-//            String uid = user.getUid();
         }
     }
 
@@ -205,11 +126,6 @@ public class HomeActivity extends BaseActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        rootRef.removeEventListener(eventListListener);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -233,9 +149,9 @@ public class HomeActivity extends BaseActivity
             case R.id.nav_send:
                 break;
             case R.id.nav_signout:
-setResult(RESULT_OK);
+                setResult(RESULT_OK);
 
-finish();
+                finish();
                 break;
 
         }
@@ -245,29 +161,42 @@ finish();
         return true;
     }
 
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    @Override
-    public void onDateSet(int year, int month, int day) {
-        selectDate.setText(day + "-" + month + "-" + year);
-//        chooseDate.setTag(new int[]{year, month, day});
-        selectedDate = getSelectedDate(year, month, day);
-        showEventsOnTheDate();
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+            switch (position) {
+                case 0:
+                    return HomeFragment.newInstance();
+                case 1:
+                    return StoriesFragment.newInstance();
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            // Show 3 total pages.
+            return 2;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "It happens today";
+                case 1:
+                    return "My stories";
+            }
+            return null;
+        }
     }
 
-    @Override
-    public void onItemClick(int position, View v) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("eventVo", eventVOs.get(position));
-        navigateWithData(EventsInStories.class, bundle);
-    }
 
-    @Override
-    public void onDefaultClick(View v) {
-        navigate(EventAddActivity.class);
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
 }

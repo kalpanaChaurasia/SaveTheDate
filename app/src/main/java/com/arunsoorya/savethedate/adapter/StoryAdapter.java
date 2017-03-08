@@ -1,14 +1,12 @@
 package com.arunsoorya.savethedate.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.arunsoorya.savethedate.R;
-import com.arunsoorya.savethedate.StoryActivity;
 import com.arunsoorya.savethedate.model.StoryVO;
 import com.arunsoorya.savethedate.utils.RecyclerClickListener;
 import com.arunsoorya.savethedate.utils.Utils;
@@ -26,11 +24,10 @@ public class StoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private Context context;
     private RecyclerClickListener recyclerClickListener;
 
-    public StoryAdapter(List<StoryVO> stories, Context context) {
+    public StoryAdapter(List<StoryVO> stories, Context context, RecyclerClickListener recyclerClickListener) {
         this.context = context;
         this.stories = stories;
-        if (context instanceof RecyclerClickListener)
-            recyclerClickListener = (RecyclerClickListener) context;
+        this.recyclerClickListener = recyclerClickListener;
     }
 
     @Override
@@ -86,8 +83,11 @@ public class StoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onItemClick(int position, View v) {
+        if (recyclerClickListener != null) {
 
-        recyclerClickListener.onItemClick(position,v);
+
+            recyclerClickListener.onItemClick(position, v);
+        }
     }
 
     @Override

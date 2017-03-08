@@ -15,40 +15,59 @@
         android:padding="10dp">
 
         <TextView
-            android:id="@+id/event_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/textColor" />
-
-        <TextView
             android:id="@+id/event_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:textColor="@color/textColor" />
 
-        <TextView
-            android:id="@+id/event_date"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textColor="@color/textColor" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/event_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:text="dfdf"
+                android:textColor="@color/textColor" />
+
+            <Button
+                android:id="@+id/goToStory"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Go to story" />
+            <ImageView
+                android:id="@+id/edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:padding="7dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_edit" />
+        </LinearLayout>
     </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:textSize="17sp"
         android:paddingLeft="5dp"
         android:text="Story Summary"
-        android:textColor="@color/textColor" />
+        android:textColor="@color/textColor"
+        android:textSize="17sp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="10dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:padding="10dp" />
 
 </LinearLayout>

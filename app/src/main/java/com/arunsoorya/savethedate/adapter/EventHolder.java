@@ -19,6 +19,7 @@ public class EventHolder extends RecyclerView.ViewHolder implements View.OnClick
     public TextView date;
     public TextView desc;
     public ImageView edit;
+    private View goToNext;
     private RecyclerClickListener clickListener;
     private RecyclerClickListener.eventEditListener eventEditListener;
 
@@ -33,6 +34,10 @@ public class EventHolder extends RecyclerView.ViewHolder implements View.OnClick
         date = (TextView) v.findViewById(R.id.item_date);
         desc = (TextView) v.findViewById(R.id.item_description);
         edit = (ImageView) v.findViewById(R.id.edit);
+        goToNext =  v.findViewById(R.id.goToDetail);
+        if (goToNext != null) {
+            goToNext.setOnClickListener(this);
+        }
         if (eventEditListener != null) {
             edit.setOnClickListener(this);
         }
@@ -43,6 +48,7 @@ public class EventHolder extends RecyclerView.ViewHolder implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.edit:
+            case R.id.goToDetail:
                 eventEditListener.onEventEdit(view, getAdapterPosition());
                 break;
             default:

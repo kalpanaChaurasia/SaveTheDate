@@ -1,15 +1,16 @@
 package com.arunsoorya.savethedate;
 
 import android.os.Bundle;
-import android.support.design.widget.TextInputEditText;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.arunsoorya.savethedate.adapter.EventAdapter;
 import com.arunsoorya.savethedate.model.EventVO;
 import com.arunsoorya.savethedate.model.StoryVO;
+import com.arunsoorya.savethedate.utils.MyDialog;
 import com.arunsoorya.savethedate.utils.RecyclerClickListener;
 import com.arunsoorya.savethedate.utils.Utils;
 import com.google.firebase.database.DataSnapshot;
@@ -19,26 +20,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class StoryActivity extends BaseActivity implements View.OnClickListener, RecyclerClickListener {
-    @BindView(R.id.story_details)
-    TextInputEditText storyDetails;
-    @BindView(R.id.story_name)
-    TextInputEditText storyName;
+public class StoryActivity extends BaseActivity implements View.OnClickListener, RecyclerClickListener,RecyclerClickListener.eventEditListener  {
+
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
+    @BindView(R.id.event_desc)
+    TextView storyDetails;
+    @BindView(R.id.edit)
+    ImageView edit;
 
-    @BindView(R.id.submit)
-    Button submit;
     //    @BindView(R.id.fab)
 //    FloatingActionButton fab;
-    private DatabaseReference mDatabase;
+    private DatabaseReference getAllStoryRef, getSelectedStoryRef;
     private StoryVO storyVO;
     private List<EventVO> eventVOs = new ArrayList<>();
 
@@ -50,26 +49,16 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ButterKnife.bind(this);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        getAllStoryRef = FirebaseDatabase.getInstance().getReference();
 
-        if (getIntent() != null && getIntent().hasExtra("storyAdd")) {
-            recyclerView.setVisibility(View.GONE);
-//            fab.setVisibility(View.GONE);
-            submit.setOnClickListener(this);
-        } else {
 
-            if (getIntent() != null) {
-                storyVO = getIntent().getParcelableExtra("data");
-
-                storyDetails.setText(storyVO.getStoryDesc());
-                storyName.setText(storyVO.getStoryName());
-
-                storyDetails.setEnabled(false);
-                storyName.setEnabled(false);
-                showEventList();
-            }
-
-            submit.setVisibility(View.GONE);
+        if (getIntent() != null) {
+            storyVO = getIntent().getParcelableExtra("data");
+            setDateToView(storyVO);
+            showEventList();
+        }
+        edit.setOnClickListener(this);
+        getStoryDetails();
 //            fab.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View view) {
@@ -80,37 +69,29 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
 //
 //                }
 //            });
-        }
 
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.submit:
-                submit();
-                break;
-        }
+    private void setDateToView(StoryVO storyVO) {
+        getSupportActionBar().setTitle(storyVO.getStoryName());
+        storyDetails.setText(storyVO.getStoryDesc());
     }
+
+    private void getStoryDetails() {
+
+        getSelectedStoryRef = FirebaseDatabase.getInstance().getReference(getStoryPath() + "/" + storyVO.getStoryId());
+        getSelectedStoryRef.addValueEventListener(storyDetailsListener);
+    }
+
 
     private void showEventList() {
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        recyclerView.setAdapter(new EventAdapter(eventVOs, this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new EventAdapter(eventVOs, this, false, this));
 
-        mDatabase = FirebaseDatabase.getInstance().getReference(getStoryEventPath(storyVO.getStoryId()));
-        mDatabase.addValueEventListener(eventListListener);
+        getAllStoryRef = FirebaseDatabase.getInstance().getReference(getStoryEventPath(storyVO.getStoryId()));
+        getAllStoryRef.addValueEventListener(eventListListener);
     }
 
-
-    private void submit() {
-        String todayKey = getTimeString();
-        String key = mDatabase.child(getStoryPath()).push().getKey();
-        StoryVO storyVO = new StoryVO(key, storyName.getText().toString(), storyDetails.getText().toString(), todayKey);
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put(getStoryPath() + key, storyVO.toMap());
-        mDatabase.updateChildren(childUpdates);
-        mDatabase.addListenerForSingleValueEvent(eventAddListener);
-    }
 
     private void pushNewItemAddToTheEnd() {
         EventVO eventVO = new EventVO();
@@ -118,12 +99,11 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
         eventVOs.add(eventVO);
     }
 
-    ValueEventListener eventAddListener = new ValueEventListener() {
+    ValueEventListener storyDetailsListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-//dataSnapshot.
-            showToast("story added");
-            finish();
+            storyVO = dataSnapshot.getValue(StoryVO.class);
+            setDateToView(storyVO);
         }
 
         @Override
@@ -131,8 +111,6 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
 
         }
     };
-
-
     ValueEventListener eventListListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -142,6 +120,7 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
                 eventVO = postSnapshot.getValue(EventVO.class);
                 eventVOs.add(eventVO);
             }
+            Collections.sort(eventVOs, sortBasedOnDateComparator);
             pushNewItemAddToTheEnd();
             recyclerView.getAdapter().notifyDataSetChanged();
         }
@@ -155,21 +134,39 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mDatabase.removeEventListener(eventListListener);
-        mDatabase.removeEventListener(eventAddListener);
+        getAllStoryRef.removeEventListener(eventListListener);
+        getSelectedStoryRef.removeEventListener(storyDetailsListener);
     }
 
     @Override
     public void onItemClick(int position, View v) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("storyVo", storyVO);
-        bundle.putParcelable("eventVo", eventVOs.get(position));
-        navigateWithData(EventAddActivity.class, bundle);
+        MyDialog dialog = (MyDialog) MyDialog.getInstance(eventVOs.get(position));
+        dialog.show(getSupportFragmentManager(), "dia");
+
     }
 
     @Override
     public void onDefaultClick(View v) {
         Bundle bundle = new Bundle();
+        bundle.putParcelable("storyVo", storyVO);
+        navigateWithData(EventAddActivity.class, bundle);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.edit:
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("storyVo", storyVO);
+                navigateWithData(AddStory.class, bundle);
+                break;
+        }
+    }
+
+    @Override
+    public void onEventEdit(View v, int position) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("eventVo", eventVOs.get(position));
         bundle.putParcelable("storyVo", storyVO);
         navigateWithData(EventAddActivity.class, bundle);
     }

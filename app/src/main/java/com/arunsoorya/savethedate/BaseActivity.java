@@ -1,9 +1,11 @@
 package com.arunsoorya.savethedate;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -12,10 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.arunsoorya.savethedate.model.EventVO;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Calendar;
+import java.util.Comparator;
 
 /**
  * Created by arunsoorya on 19/01/17.
@@ -146,4 +150,30 @@ public class BaseActivity extends AppCompatActivity {
 
         return String.valueOf(calendar.getTimeInMillis());
     }
+
+    Comparator sortBasedOnDateComparator = new Comparator<EventVO>() {
+        public int compare(EventVO o1, EventVO o2) {
+            return o1.getEventDate().compareToIgnoreCase(o2.getEventDate());
+        }
+    };
+    protected void showDeleteAlert(String message){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setMessage(message);
+        dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                onDeleteConfirm();
+            }
+        });
+        dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        dialog.show();
+    }
+
+    protected void onDeleteConfirm(){};
+
 }

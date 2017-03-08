@@ -1,14 +1,11 @@
 package com.arunsoorya.savethedate.utils;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
-
-import com.arunsoorya.savethedate.R;
 
 import java.util.Calendar;
 
@@ -22,7 +19,7 @@ public class DatePickerFragment extends DialogFragment
     private DateChangeListener dateChangeListener;
     private int[] dateArrayr;
 
-    public static DatePickerFragment getInstance(int[] dateArray){
+    public static DatePickerFragment getInstance(int[] dateArray) {
         DatePickerFragment pickerFragment = new DatePickerFragment();
         Bundle bundle = new Bundle();
         bundle.putIntArray("data", dateArray);
@@ -34,11 +31,12 @@ public class DatePickerFragment extends DialogFragment
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof DateChangeListener){
-            dateChangeListener = (DateChangeListener) context;
-        }
         Bundle bundle = getArguments();
 
+    }
+
+    public void setDateChangeListener(DateChangeListener dateChangeListener) {
+        this.dateChangeListener = dateChangeListener;
     }
 
     @Override
@@ -57,14 +55,14 @@ public class DatePickerFragment extends DialogFragment
         int day = c.get(Calendar.DAY_OF_MONTH);
         dateArrayr = getArguments().getIntArray("data");
 
-        if(dateArrayr.length>1){
+        if (dateArrayr.length > 1) {
             year = dateArrayr[0];
             month = dateArrayr[1];
             day = dateArrayr[2];
         }
 
         // Create a new instance of DatePickerDialog and return it
-        return new DatePickerDialog(getActivity(),this, year, month, day);
+        return new DatePickerDialog(getActivity(), this, year, month, day);
     }
 
     public void onDateSet(DatePicker view, int year, int month, int day) {

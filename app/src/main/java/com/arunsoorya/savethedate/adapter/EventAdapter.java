@@ -23,15 +23,16 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private RecyclerClickListener recyclerClickListener;
     private RecyclerClickListener.eventEditListener editListener;
     private List<EventVO> eventVOs;
+    private boolean isSquareLayout;
     private Context context;
 
-    public EventAdapter(List<EventVO> eventVOs, Context context) {
+    public EventAdapter(List<EventVO> eventVOs, Context context, boolean isSquareLayout, RecyclerClickListener recyclerClickListener) {
         this.context = context;
         this.eventVOs = eventVOs;
-        if (context instanceof RecyclerClickListener)
-            recyclerClickListener = (RecyclerClickListener) context;
-        if (context instanceof RecyclerClickListener.eventEditListener)
-            editListener = (RecyclerClickListener.eventEditListener) context;
+        this.isSquareLayout = isSquareLayout;
+        this.recyclerClickListener = recyclerClickListener;
+        if (recyclerClickListener instanceof RecyclerClickListener.eventEditListener)
+            editListener = (RecyclerClickListener.eventEditListener) recyclerClickListener;
     }
 
     @Override
@@ -52,11 +53,13 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 holder = defaultHolder;
                 break;
             case Utils.RECYCLE_TYPE_NORMAL:
+                int layout = R.layout.content_event_list_row;
+                if (isSquareLayout)
+                    layout = R.layout.content_home_event_list_row;
 
                 inflatedView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.content_event_list_row, parent, false);
-                EventHolder storyHolder = new EventHolder(inflatedView, this);
-                holder = storyHolder;
+                        .inflate(layout, parent, false);
+                holder = new EventHolder(inflatedView, this);
                 break;
 
         }
@@ -72,7 +75,8 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             case Utils.RECYCLE_TYPE_NORMAL:
                 EventHolder storyHolder = (EventHolder) holder;
                 storyHolder.title.setText(eventVOs.get(position).getEventName());
-                storyHolder.desc.setText(eventVOs.get(position).getEventDesc());
+                if (storyHolder.desc != null)
+                    storyHolder.desc.setText(eventVOs.get(position).getEventDesc());
                 storyHolder.date.setText(Utils.getFormatedTime(eventVOs.get(position).getEventDate()));
                 break;
 
@@ -98,7 +102,7 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onEventEdit(View v, int position) {
-        if(editListener!= null)
-        editListener.onEventEdit(v, position);
+        if (editListener != null)
+            editListener.onEventEdit(v, position);
     }
 }

@@ -26,11 +26,13 @@
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".StoryListActivity"
             android:label="@string/title_activity_story_list"
             android:parentActivityName=".HomeActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -39,6 +41,7 @@
         <activity
             android:name=".StoryActivity"
             android:label="@string/title_activity_story"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -47,6 +50,7 @@
         <activity
             android:name=".EventAddActivity"
             android:label="@string/title_activity_event_add"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -56,7 +60,12 @@
         <activity
             android:name=".EventsInStories"
             android:label="@string/title_activity_events_in_stories"
-            android:theme="@style/AppTheme"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".AddStory"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Save the date</string>
     <string name="title_activity_sign_up">SignUp</string>
-    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_home">Save the date</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -12,4 +12,7 @@
     <string name="title_activity_event_add">EventAddActivity</string>
     <string name="low_storage_error">no storage</string>
     <string name="title_activity_events_in_stories">EventsInStories</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
