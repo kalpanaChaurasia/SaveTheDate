@@ -22,6 +22,7 @@ public class BaseFragment extends Fragment {
     public Context context;
     private ViewGroup progressLayout;
     private ViewGroup container;
+    private ViewGroup noInternet;
 
     public BaseFragment() {
         // Required empty public constructor
@@ -45,6 +46,7 @@ public class BaseFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         container = (ViewGroup) view.findViewById(R.id.container);
         progressLayout = (ViewGroup) view.findViewById(R.id.progress_layout);
+        noInternet = (ViewGroup) view.findViewById(R.id.no_internet_layout);
     }
 
     public View getBaseView() {
@@ -56,6 +58,13 @@ public class BaseFragment extends Fragment {
         container.addView(view);
         progressLayout.setVisibility(View.GONE);
         onViewCreate(view);
+    }
+
+    protected void showNoInternet() {
+        noInternet.setVisibility(View.VISIBLE);
+    }
+    protected void hideNoInternet() {
+        noInternet.setVisibility(View.GONE);
     }
 
 

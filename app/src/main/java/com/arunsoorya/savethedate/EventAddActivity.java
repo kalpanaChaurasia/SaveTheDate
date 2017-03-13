@@ -46,6 +46,8 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
 //    ImageView edit;
     @BindView(R.id.selectedStory)
     TextView selectedStory;
+    @BindView(R.id.scan)
+    TextView scan;
 
     private DatabaseReference getStoryRef;
     private DatabaseReference updateRef;
@@ -59,7 +61,6 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
     private boolean isDateChanged;
     private boolean isStoryAdded;
     private boolean isEventDelete;
-    private String passedEventId;
     private StoryVO storyVO;
     private EventVO eventNew;
 
@@ -70,12 +71,13 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ButterKnife.bind(this);
 
-        selectedDate = Calendar.getInstance();
-        peviousDate = Calendar.getInstance();
+        selectedDate = getTodaysDate();
+        peviousDate = getTodaysDate();
         updateRef = FirebaseDatabase.getInstance().getReference();
         submit.setOnClickListener(this);
         chooseDate.setOnClickListener(this);
-        selectedStory.setOnClickListener(this);
+        selectedStory.setOnClickListener(null);
+        scan.setOnClickListener(this);
 
         if (getIntent() != null) {
             if (getIntent().hasExtra("storyVo")) {
@@ -87,12 +89,12 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
             }
             if (getIntent().hasExtra("eventVo")) {
                 event = getIntent().getParcelableExtra("eventVo");
-                passedEventId = event.getEventId();
                 isEdit = true;
                 storyId = event.getStoryId();
                 setEventDataToView();
             }
         }
+        setdateInText(selectedDate);
 
     }
 
@@ -103,8 +105,6 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
 
         selectedDate.setTimeInMillis(Long.parseLong(event.getEventDate()));
         peviousDate.setTimeInMillis(Long.parseLong(event.getEventDate()));
-
-        setdateInText(selectedDate);
     }
 
     @Override
@@ -127,6 +127,18 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
             case R.id.selectedStory:
                 showStoryList();
                 break;
+            case R.id.scan:
+                navigateWithResult(ImageReaderPreviewActivity.class, 201);
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 201 && resultCode == RESULT_OK && data != null) {
+            eventDesc.setText(String.valueOf(data.getExtras().get("data")));
         }
     }
 
@@ -144,6 +156,7 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void submit() {
+        showHeaderLoding(eventName, eventDesc, chooseDate, submit);
         if (isEdit && isDateChanged) {
             // for updating..first we are deleting and then adding
             removeStoryAndEventRef();
@@ -154,10 +167,12 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
 
     private void removeStoryAndEventRef() {
 
-        String oldDateWithoutYear = generateEventId(peviousDate);
+//        String oldDateWithoutYear = generateEventId(peviousDate);
+        String oldDateWithoutYear = event.getEventDateWithoutYear();
         //updating the event in story and events child
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put(getStoryEventPath(storyVO.getStoryId()).concat("/") + event.getEventKey(), null);
+        if (storyVO != null)
+            childUpdates.put(getStoryEventPath(storyVO.getStoryId()).concat("/") + event.getEventKey(), null);
         childUpdates.put(getEventsPath().concat(oldDateWithoutYear).concat("/") + event.getEventKey(), null);
         updateRef.updateChildren(childUpdates);
         updateRef.addListenerForSingleValueEvent(removeEventListener);
@@ -181,6 +196,7 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
         //creating new event and setting event key
         eventNew = new EventVO(storyId, eventName.getText().toString(),
                 eventDesc.getText().toString(), seldDate);
+        eventNew.setEventDateWithoutYear(selectedDateWithoutYear);
         eventNew.setEventKey(keyEvent);
 
         //updating the event in story and events child
@@ -200,11 +216,6 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
         calendar.setTimeInMillis(timeStamp.getTimeInMillis());
         calendar.set(Calendar.YEAR, 0);
         return String.valueOf(calendar.getTimeInMillis());
-    }
-
-    private void deleteWhenDateofStoryChanges() {
-
-
     }
 
     ValueEventListener removeEventListener = new ValueEventListener() {
@@ -311,8 +322,7 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void setdateInText(Calendar calendar) {
-        chooseDate.setText(calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH)
-                + "-" + calendar.get(Calendar.DAY_OF_MONTH));
+        chooseDate.setText(Utils.getFormattedDate(calendar));
     }
 
     @Override
@@ -325,18 +335,24 @@ public class EventAddActivity extends BaseActivity implements View.OnClickListen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.delete_menu, menu);
+        if (isEdit)
+            getMenuInflater().inflate(R.menu.delete_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_delete) {
-            showDeleteAlert("Do you want to Delete?");
-            return true;
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // API 5+ solution
+                finish();
+                return true;
+            case R.id.action_delete:
+                showDeleteAlert("Do you want to Delete?");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
 

@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.arunsoorya.savethedate">
+    package="com.arunsoorya.savethedate"
+    android:installLocation="auto">
+
+    <uses-feature android:name="android.hardware.camera" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
+        android:hardwareAccelerated="true"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -33,29 +40,17 @@
             android:label="@string/title_activity_story_list"
             android:parentActivityName=".HomeActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.arunsoorya.savethedate.HomeActivity" />
-        </activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".StoryActivity"
             android:label="@string/title_activity_story"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.arunsoorya.savethedate.StoryListActivity" />
-        </activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".EventAddActivity"
             android:label="@string/title_activity_event_add"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.arunsoorya.savethedate.HomeActivity" />
-        </activity>
+            android:theme="@style/AppTheme" />
         <activity android:name=".utils.ImageReadActivity" />
         <activity
             android:name=".EventsInStories"
@@ -66,6 +61,15 @@
             android:name=".AddStory"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
+        <activity android:name=".ImageReaderPreviewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
+
+        <activity
+            android:name=".ocrlib.OcrCaptureActivity"
+            android:screenOrientation="portrait"
+            android:label="Read Text" />
     </application>
 
 </manifest>

@@ -75,9 +75,15 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             case Utils.RECYCLE_TYPE_NORMAL:
                 EventHolder storyHolder = (EventHolder) holder;
                 storyHolder.title.setText(eventVOs.get(position).getEventName());
-                if (storyHolder.desc != null)
+
+                if (storyHolder.desc != null) {
                     storyHolder.desc.setText(eventVOs.get(position).getEventDesc());
-                storyHolder.date.setText(Utils.getFormatedTime(eventVOs.get(position).getEventDate()));
+                    storyHolder.date.setText(Utils.getFormatedTime(eventVOs.get(position).getEventDate()));
+                }else{
+                    //for home screen layout
+                    storyHolder.date.setText(Utils.getFormatedTimeYear(eventVOs.get(position).getEventDate()));
+                }
+
                 break;
 
         }

@@ -3,6 +3,8 @@ package com.arunsoorya.savethedate;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,12 +23,14 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class StoryActivity extends BaseActivity implements View.OnClickListener, RecyclerClickListener,RecyclerClickListener.eventEditListener  {
+public class StoryActivity extends BaseActivity implements View.OnClickListener, RecyclerClickListener, RecyclerClickListener.eventEditListener {
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -37,7 +41,7 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
 
     //    @BindView(R.id.fab)
 //    FloatingActionButton fab;
-    private DatabaseReference getAllStoryRef, getSelectedStoryRef;
+    private DatabaseReference getAllStoryRef, getSelectedStoryRef, deleteRef;
     private StoryVO storyVO;
     private List<EventVO> eventVOs = new ArrayList<>();
 
@@ -49,6 +53,7 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ButterKnife.bind(this);
+        deleteRef = FirebaseDatabase.getInstance().getReference();
         getAllStoryRef = FirebaseDatabase.getInstance().getReference();
 
 
@@ -59,16 +64,6 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
         }
         edit.setOnClickListener(this);
         getStoryDetails();
-//            fab.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//
-//                    Bundle bundle = new Bundle();
-//                    bundle.putParcelable("storyVo", storyVO);
-//                    navigateWithData(EventAddActivity.class, bundle);
-//
-//                }
-//            });
 
     }
 
@@ -135,14 +130,13 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
     protected void onDestroy() {
         super.onDestroy();
         getAllStoryRef.removeEventListener(eventListListener);
+        deleteRef.removeEventListener(removeEventListener);
         getSelectedStoryRef.removeEventListener(storyDetailsListener);
     }
 
     @Override
     public void onItemClick(int position, View v) {
-        MyDialog dialog = (MyDialog) MyDialog.getInstance(eventVOs.get(position));
-        dialog.show(getSupportFragmentManager(), "dia");
-
+        showBottomSheet(eventVOs.get(position));
     }
 
     @Override
@@ -169,5 +163,62 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
         bundle.putParcelable("eventVo", eventVOs.get(position));
         bundle.putParcelable("storyVo", storyVO);
         navigateWithData(EventAddActivity.class, bundle);
+    }
+
+    ValueEventListener removeEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+//dataSnapshot.
+            showToast("story removed");
+            finish();
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+    @Override
+    protected void onDeleteConfirm() {
+        removeStoryAndEventRef();
+
+    }
+
+    private void removeStoryAndEventRef() {
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put(getStoryPath().concat(storyVO.getStoryId()), null);
+        for (EventVO eventVO : eventVOs) {
+            if (eventVO.getEventKey() == null)
+                continue;
+            String storyIdPath = getEventsPath().concat(eventVO.getEventDateWithoutYear()).concat("/")
+                    .concat(eventVO.getEventKey()).concat("/").concat("storyId");
+            childUpdates.put(storyIdPath, null);
+        }
+        deleteRef.updateChildren(childUpdates);
+        deleteRef.addListenerForSingleValueEvent(removeEventListener);
+        getSelectedStoryRef.removeEventListener(storyDetailsListener);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.delete_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // API 5+ solution
+                finish();
+                return true;
+            case R.id.action_delete:
+                showDeleteAlert("Do you want to Delete?");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

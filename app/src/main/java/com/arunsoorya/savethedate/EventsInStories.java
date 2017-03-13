@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -81,7 +82,6 @@ public class EventsInStories extends BaseActivity implements View.OnClickListene
     private void setEventDataToView() {
         getSupportActionBar().setTitle(event.getEventName());
         eventDesc.setText(event.getEventDesc());
-        chooseDate.setText(event.getEventDate());
 
         chooseDate.setText(Utils.getFormatedTime(event.getEventDate()));
 
@@ -147,8 +147,7 @@ public class EventsInStories extends BaseActivity implements View.OnClickListene
 
     @Override
     public void onItemClick(int position, View v) {
-        MyDialog dialog = (MyDialog) MyDialog.getInstance(eventVOs.get(position));
-        dialog.show(getSupportFragmentManager(), "dia");
+        showBottomSheet(eventVOs.get(position));
     }
 
     @Override
@@ -177,6 +176,17 @@ public class EventsInStories extends BaseActivity implements View.OnClickListene
                 bundle1.putParcelable("eventVo", event);
                 navigateWithData(EventAddActivity.class, bundle1);
                 break;
+        }
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // API 5+ solution
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

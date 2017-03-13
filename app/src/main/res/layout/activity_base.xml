@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -22,15 +22,18 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
 
         <LinearLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
-            android:background="@color/bgColor"
             android:layout_height="match_parent"
+            android:background="@color/bgColor"
             android:orientation="vertical" />
+
 
         <LinearLayout
             android:id="@+id/progress_layout"
@@ -40,6 +43,50 @@
             android:orientation="vertical">
 
             <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <!-- include bottom sheet -->
+        <!-- <FrameLayout
+             android:layout_width="match_parent"
+             android:layout_height="300dp"
+             android:layout_gravity="bottom"
+             android:background="@color/white"
+             android:elevation="4dp"
+             android:fitsSystemWindows="true"
+             appp:behavior_hideable="false"
+             appp:behavior_peekHeight="0dp"
+             appp:layout_behavior="@string/bottom_sheet_behavior">
+
+             <include layout="@layout/bottom_sheet_modal" />
+         </FrameLayout>-->
+        <include layout="@layout/no_internet_layout" />
+
+        <LinearLayout
+            android:id="@+id/header_loading_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/black"
+            android:clipToPadding="false"
+            android:elevation="5dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/header_loading_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="5dp"
+                android:text="Saving..."
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleSmall"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>

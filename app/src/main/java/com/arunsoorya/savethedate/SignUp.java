@@ -23,6 +23,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUp extends BaseActivity implements GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener,GoogleApiClient.ConnectionCallbacks {

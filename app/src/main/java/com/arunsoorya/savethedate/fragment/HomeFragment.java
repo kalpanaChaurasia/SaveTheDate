@@ -3,11 +3,11 @@ package com.arunsoorya.savethedate.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.arunsoorya.savethedate.EventAddActivity;
@@ -17,7 +17,6 @@ import com.arunsoorya.savethedate.adapter.EventAdapter;
 import com.arunsoorya.savethedate.model.EventVO;
 import com.arunsoorya.savethedate.utils.DateChangeListener;
 import com.arunsoorya.savethedate.utils.DatePickerFragment;
-import com.arunsoorya.savethedate.utils.MyDialog;
 import com.arunsoorya.savethedate.utils.RecyclerClickListener;
 import com.arunsoorya.savethedate.utils.Utils;
 import com.google.firebase.database.DataSnapshot;
@@ -43,7 +42,9 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     RecyclerView recyclerView;
 
     @BindView(R.id.selectDate)
-    TextView selectDate;
+    Button selectDate;
+    @BindView(R.id.new_event_layout)
+    View newEventLayout;
 
     private DataSnapshot dataSnapshot;
     private Calendar selectedDate;
@@ -53,6 +54,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     public HomeFragment() {
         // Required empty public constructor
     }
+
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -76,11 +78,16 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     private void setUpRecyclerView() {
 
         recyclerView.setLayoutManager(new GridLayoutManager(context, 3));
-        recyclerView.setAdapter(new EventAdapter(eventVOs, context, true,this));
+        recyclerView.setAdapter(new EventAdapter(eventVOs, context, true, this));
         selectDate.setOnClickListener(this);
+        newEventLayout.setOnClickListener(this);
         selectedDate = Calendar.getInstance();
+        selectDate.setText(Utils.getFormattedDate(selectedDate));
         showLoading();
-        rootRef = FirebaseDatabase.getInstance().getReference(getBaseInstance().getEventsPath());
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        rootRef = database.getReference(getBaseInstance().getEventsPath());
+        rootRef.keepSynced(true);
         rootRef.addValueEventListener(eventListListener);
     }
 
@@ -101,6 +108,9 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 DatePickerFragment newFragment = DatePickerFragment.getInstance(new int[]{year, month, day});
                 newFragment.setDateChangeListener(this);
                 newFragment.show(getChildFragmentManager(), "datePicker");
+                break;
+            case R.id.new_event_layout:
+                getBaseInstance().navigate(EventAddActivity.class);
                 break;
         }
     }
@@ -131,8 +141,15 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             eventVO = postSnapshot.getValue(EventVO.class);
             eventVOs.add(eventVO);
         }
-        pushNewItemAddToTheEnd();
-        recyclerView.getAdapter().notifyDataSetChanged();
+        if (eventVOs.size() != 0) {
+            pushNewItemAddToTheEnd();
+            recyclerView.getAdapter().notifyDataSetChanged();
+            newEventLayout.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.GONE);
+            newEventLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -143,16 +160,14 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void onDateSet(int year, int month, int day) {
-        selectDate.setText(day + "-" + month + "-" + year);
-//        chooseDate.setTag(new int[]{year, month, day});
         selectedDate = getBaseInstance().getSelectedDate(year, month, day);
+        selectDate.setText(Utils.getFormattedDate(selectedDate));
         showEventsOnTheDate();
     }
 
     @Override
     public void onItemClick(int position, View v) {
-        MyDialog dialog = (MyDialog) MyDialog.getInstance(eventVOs.get(position));
-        dialog.show(getChildFragmentManager(), "dia");
+        getBaseInstance().showBottomSheet(eventVOs.get(position));
 
     }
 
@@ -163,8 +178,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void onEventEdit(View v, int position) {
+        EventVO eventVO = eventVOs.get(position);
         Bundle bundle = new Bundle();
         bundle.putParcelable("eventVo", eventVOs.get(position));
-        getBaseInstance().navigateWithData(EventsInStories.class, bundle);
+        if (eventVO.getStoryId() == null)
+            getBaseInstance().navigateWithData(EventAddActivity.class, bundle);
+        else
+            getBaseInstance().navigateWithData(EventsInStories.class, bundle);
     }
 }

@@ -4,6 +4,7 @@ import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
@@ -27,7 +28,23 @@ public class Utils {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(Long.parseLong(inMIlls));
 
-        return calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH)
-                + "-" + calendar.get(Calendar.DAY_OF_MONTH);
+        return getFormattedDate(calendar);
+    }
+    public static String getFormatedTimeYear(String inMIlls){
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(Long.parseLong(inMIlls));
+
+        return getFormattedDateYear(calendar);
+    }
+    public static String getFormattedDate(Calendar calendar) {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+        return dateFormat.format(calendar.getTime());
+    }
+
+    public static String getFormattedDateYear(Calendar calendar) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
+        return dateFormat.format(calendar.getTime());
     }
 }

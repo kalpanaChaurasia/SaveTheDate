@@ -30,12 +30,14 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class StoriesFragment extends BaseFragment implements RecyclerClickListener {
+public class StoriesFragment extends BaseFragment implements RecyclerClickListener, View.OnClickListener {
 
     @BindView(R.id.recyclerview)
     RecyclerView recyclerView;
     private List<StoryVO> storyVOs = new ArrayList();
     private DatabaseReference mDatabase;
+    @BindView(R.id.new_event_layout)
+    View newEventLayout;
 
     public StoriesFragment() {
         // Required empty public constructor
@@ -59,13 +61,16 @@ public class StoriesFragment extends BaseFragment implements RecyclerClickListen
 //        super.onViewCreate(view);
         ButterKnife.bind(this, view);
         setUpRecyclerView();
+        newEventLayout.setOnClickListener(this);
     }
 
     private void setUpRecyclerView() {
         recyclerView.setLayoutManager(new GridLayoutManager(context, 3));
         recyclerView.setAdapter(new StoryAdapter(storyVOs, context, this));
 
-        mDatabase = FirebaseDatabase.getInstance().getReference(getBaseInstance().getStoryPath());
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        mDatabase = database.getReference(getBaseInstance().getStoryPath());
+        mDatabase.keepSynced(true);
         mDatabase.addValueEventListener(valueEventListener);
         showLoading();
     }
@@ -86,8 +91,15 @@ public class StoriesFragment extends BaseFragment implements RecyclerClickListen
                 storyVO = postSnapshot.getValue(StoryVO.class);
                 storyVOs.add(storyVO);
             }
-            pushNewItemAddToTheEnd();
-            recyclerView.getAdapter().notifyDataSetChanged();
+            if (storyVOs.size() != 0) {
+                pushNewItemAddToTheEnd();
+                recyclerView.getAdapter().notifyDataSetChanged();
+                newEventLayout.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                recyclerView.setVisibility(View.GONE);
+                newEventLayout.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
@@ -114,4 +126,12 @@ public class StoriesFragment extends BaseFragment implements RecyclerClickListen
         getBaseInstance().navigate(AddStory.class);
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.new_event_layout:
+                getBaseInstance().navigate(AddStory.class);
+                break;
+        }
+    }
 }

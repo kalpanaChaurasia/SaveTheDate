@@ -2,6 +2,7 @@ package com.arunsoorya.savethedate;
 
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -33,7 +34,7 @@ public class AddStory extends BaseActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentLayout(R.layout.activity_add_story);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ButterKnife.bind(this);
         submit.setOnClickListener(this);
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -56,11 +57,12 @@ public class AddStory extends BaseActivity implements View.OnClickListener {
     }
 
     private void submit() {
+        showHeaderLoding(storyName, storyDetails, submit);
         String todayKey = getTimeString();
-        String key ;
+        String key;
         if (!isStoryEdit) {
             key = mDatabase.child(getStoryPath()).push().getKey();
-        }else{
+        } else {
             key = storyVO.getStoryId();
         }
         StoryVO storyVO = new StoryVO(key, storyName.getText().toString(), storyDetails.getText().toString(), todayKey);
@@ -89,5 +91,20 @@ public class AddStory extends BaseActivity implements View.OnClickListener {
     protected void onDestroy() {
         super.onDestroy();
         mDatabase.removeEventListener(eventAddListener);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // API 5+ solution
+                finish();
+                return true;
+            case R.id.action_delete:
+                showDeleteAlert("Do you want to Delete?");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

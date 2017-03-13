@@ -29,6 +29,7 @@ public class EventVO implements Parcelable {
     private String eventKey;
     private String eventDesc;
     private String eventDate;
+    private String eventDateWithoutYear;
     private String eventImage;
     private int viewType;
 
@@ -40,7 +41,15 @@ public class EventVO implements Parcelable {
         result.put("eventDesc", eventDesc);
         result.put("eventDate", eventDate);
         result.put("eventKey", eventKey);
+        result.put("eventDateWithoutYear", eventDateWithoutYear);
         return result;
+    }
+    public String getEventDateWithoutYear() {
+        return eventDateWithoutYear;
+    }
+
+    public void setEventDateWithoutYear(String eventDateWithoutYear) {
+        this.eventDateWithoutYear = eventDateWithoutYear;
     }
 
     public String getEventId() {
@@ -117,6 +126,7 @@ public class EventVO implements Parcelable {
         dest.writeString(this.eventDate);
         dest.writeString(this.eventDate);
         dest.writeString(this.eventKey);
+        dest.writeString(this.eventDateWithoutYear);
         dest.writeInt(this.viewType);
     }
 
@@ -128,6 +138,7 @@ public class EventVO implements Parcelable {
         this.eventDate = in.readString();
         this.eventImage = in.readString();
         this.eventKey = in.readString();
+        this.eventDateWithoutYear = in.readString();
         this.viewType = in.readInt();
     }
 

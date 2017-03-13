@@ -3,11 +3,11 @@
 
     <item
         android:id="@+id/nav_story"
-        android:icon="@drawable/ic_menu_camera"
+        android:icon="@drawable/ic_menu_stories"
         android:title="Stories" />
     <item
         android:id="@+id/nav_share"
-        android:icon="@drawable/ic_menu_share"
+        android:icon="@drawable/ic_menu_shares"
         android:title="Share" />
     <item
         android:id="@+id/nav_send"
@@ -15,6 +15,6 @@
         android:title="Send" />
     <item
         android:id="@+id/nav_signout"
-        android:icon="@drawable/ic_menu_send"
+        android:icon="@drawable/ic_menu_logout"
         android:title="Logout" />
 </menu>
