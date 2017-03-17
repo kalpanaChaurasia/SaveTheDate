@@ -1,74 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="vertical">
+    card_view:cardBackgroundColor="#ffffff"
 
-    <TextView
-        android:id="@+id/item_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:ellipsize="end"
-        android:lines="1"
-        android:text="Some"
-        android:textColor="@color/textColor"
-        android:textSize="14sp" />
+    card_view:cardPreventCornerOverlap="true"
+    card_view:cardUseCompatPadding="true">
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/card_view"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        card_view:cardBackgroundColor="#ffffff"
-        card_view:cardCornerRadius="4dp"
-        card_view:cardElevation="1dp"
-        card_view:cardUseCompatPadding="true">
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingLeft="5dp"
+
+            android:orientation="horizontal">
+            <!--android:background="#f2f2f2"-->
+            <TextView
+                android:id="@+id/item_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:lines="1"
+android:padding="3dp"
+                android:text="Some"
+                android:textColor="@color/textColor"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/go_to_story"
+                android:layout_width="wrap_content"
+                android:drawableRight="@drawable/ic_arrow_forward"
+                android:layout_height="wrap_content"
+                android:text="Story"
+                android:paddingLeft="5dp"
+                android:visibility="gone"
+                android:gravity="center"
+                android:layout_gravity="right"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:padding="5dp">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="left|center_vertical"
-                android:orientation="vertical"
-                android:padding="5dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/item_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:ellipsize="end"
                     android:lines="1"
                     android:text="Some"
                     android:textColor="@color/textColor"
-                    android:textSize="14sp" />
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/item_description"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:ellipsize="end"
                     android:lines="2"
                     android:textColor="@color/textColor"
+                    android:textSize="12sp"
                     android:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_edit" />
+
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/edit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:padding="8dp"
-                android:src="@drawable/ic_edit" />
         </LinearLayout>
-    </android.support.v7.widget.CardView>
-</LinearLayout>
+
+    </LinearLayout>
+</android.support.v7.widget.CardView>

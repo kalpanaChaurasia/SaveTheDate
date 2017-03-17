@@ -10,6 +10,9 @@ public interface RecyclerClickListener {
     interface eventEditListener{
         void onEventEdit(View v, int position);
     }
+    interface goToStoryListener{
+        void goToStory(View v, int position);
+    }
     void onItemClick(int position, View v);
     void onDefaultClick(View v);
 }

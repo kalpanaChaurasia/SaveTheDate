@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.arunsoorya.savethedate.adapter.EventAdapter;
 import com.arunsoorya.savethedate.model.EventVO;
 import com.arunsoorya.savethedate.model.StoryVO;
-import com.arunsoorya.savethedate.utils.MyDialog;
 import com.arunsoorya.savethedate.utils.RecyclerClickListener;
 import com.arunsoorya.savethedate.utils.Utils;
 import com.google.firebase.database.DataSnapshot;
@@ -56,14 +55,21 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
         deleteRef = FirebaseDatabase.getInstance().getReference();
         getAllStoryRef = FirebaseDatabase.getInstance().getReference();
 
-
+        String storyId = "";
         if (getIntent() != null) {
-            storyVO = getIntent().getParcelableExtra("data");
-            setDateToView(storyVO);
-            showEventList();
+            if (getIntent().hasExtra("data")) {
+                storyVO = getIntent().getParcelableExtra("data");
+                storyId = storyVO.getStoryId();
+                setDateToView(storyVO);
+            }
+            if (getIntent().hasExtra("storyId")) {
+                storyId = getIntent().getStringExtra("storyId");
+            }
+            edit.setOnClickListener(this);
+            getStoryDetails(storyId);
+            showEventList(storyId);
         }
-        edit.setOnClickListener(this);
-        getStoryDetails();
+
 
     }
 
@@ -72,18 +78,18 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
         storyDetails.setText(storyVO.getStoryDesc());
     }
 
-    private void getStoryDetails() {
+    private void getStoryDetails(String storyId) {
 
-        getSelectedStoryRef = FirebaseDatabase.getInstance().getReference(getStoryPath() + "/" + storyVO.getStoryId());
+        getSelectedStoryRef = FirebaseDatabase.getInstance().getReference(getStoryPath() + "/" + storyId);
         getSelectedStoryRef.addValueEventListener(storyDetailsListener);
     }
 
 
-    private void showEventList() {
+    private void showEventList(String storyId) {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new EventAdapter(eventVOs, this, false, this));
 
-        getAllStoryRef = FirebaseDatabase.getInstance().getReference(getStoryEventPath(storyVO.getStoryId()));
+        getAllStoryRef = FirebaseDatabase.getInstance().getReference(getStoryEventPath(storyId));
         getAllStoryRef.addValueEventListener(eventListListener);
     }
 
@@ -98,7 +104,8 @@ public class StoryActivity extends BaseActivity implements View.OnClickListener,
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             storyVO = dataSnapshot.getValue(StoryVO.class);
-            setDateToView(storyVO);
+            if (storyVO != null)
+                setDateToView(storyVO);
         }
 
         @Override

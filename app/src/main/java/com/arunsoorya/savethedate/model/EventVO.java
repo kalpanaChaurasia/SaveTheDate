@@ -161,4 +161,9 @@ public class EventVO implements Parcelable {
     public void setEventKey(String eventKey) {
         this.eventKey = eventKey;
     }
+
+    @Override
+    public String toString() {
+        return eventName.concat(" ").concat(eventDesc);
+    }
 }

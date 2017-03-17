@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_splash_screen"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+
+    tools:context="com.arunsoorya.savethedate.SplashScreen">
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:background="@drawable/bg_large_wide" />
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_height="wrap_content"
+        android:text="@string/hello_blank_fragment" />
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent" />
+</RelativeLayout>

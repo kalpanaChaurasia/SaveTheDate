@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
 
 import com.arunsoorya.savethedate.fragment.HomeFragment;
@@ -35,7 +36,10 @@ public class HomeActivity extends BaseActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -147,7 +151,8 @@ public class HomeActivity extends BaseActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_search) {
+            navigate(EventSearch.class);
             return true;
         }
         drawer.closeDrawer(GravityCompat.START);

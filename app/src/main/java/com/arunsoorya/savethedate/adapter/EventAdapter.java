@@ -2,6 +2,7 @@ package com.arunsoorya.savethedate.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,20 +12,25 @@ import com.arunsoorya.savethedate.model.EventVO;
 import com.arunsoorya.savethedate.utils.RecyclerClickListener;
 import com.arunsoorya.savethedate.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by arunsoorya on 26/01/17.
  */
 
-public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerClickListener, RecyclerClickListener.eventEditListener {
+public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements RecyclerClickListener,
+        RecyclerClickListener.eventEditListener, RecyclerClickListener.goToStoryListener {
 
 
     private RecyclerClickListener recyclerClickListener;
     private RecyclerClickListener.eventEditListener editListener;
+    private RecyclerClickListener.goToStoryListener goToStoryListener;
     private List<EventVO> eventVOs;
     private boolean isSquareLayout;
     private Context context;
+    private List<EventVO> searchList;
 
     public EventAdapter(List<EventVO> eventVOs, Context context, boolean isSquareLayout, RecyclerClickListener recyclerClickListener) {
         this.context = context;
@@ -33,6 +39,10 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.recyclerClickListener = recyclerClickListener;
         if (recyclerClickListener instanceof RecyclerClickListener.eventEditListener)
             editListener = (RecyclerClickListener.eventEditListener) recyclerClickListener;
+        if (recyclerClickListener instanceof RecyclerClickListener.goToStoryListener)
+            goToStoryListener = (RecyclerClickListener.goToStoryListener) recyclerClickListener;
+        searchList = new ArrayList<>();
+        searchList.addAll(eventVOs);
     }
 
     @Override
@@ -67,6 +77,11 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return holder;
     }
 
+    public void updateList(List<EventVO> list){
+        searchList.clear();
+        searchList.addAll(list);
+//        notifyDataSetChanged();
+    }
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
@@ -74,20 +89,41 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 break;
             case Utils.RECYCLE_TYPE_NORMAL:
                 EventHolder storyHolder = (EventHolder) holder;
-                storyHolder.title.setText(eventVOs.get(position).getEventName());
+                EventVO eventVO = eventVOs.get(position);
+                storyHolder.title.setText(eventVO.getEventName());
 
                 if (storyHolder.desc != null) {
-                    storyHolder.desc.setText(eventVOs.get(position).getEventDesc());
-                    storyHolder.date.setText(Utils.getFormatedTime(eventVOs.get(position).getEventDate()));
-                }else{
+                    storyHolder.desc.setText(eventVO.getEventDesc());
+                    storyHolder.date.setText(Utils.getFormatedTime(eventVO.getEventDate()));
+                } else {
                     //for home screen layout
-                    storyHolder.date.setText(Utils.getFormatedTimeYear(eventVOs.get(position).getEventDate()));
+                    storyHolder.date.setText(Utils.getFormatedTimeYear(eventVO.getEventDate()));
+                }
+                if (storyHolder.goToStory!= null && !TextUtils.isEmpty(eventVO.getStoryId())) {
+                    storyHolder.goToStory.setVisibility(View.VISIBLE);
                 }
 
                 break;
 
         }
 
+    }
+
+    public void filter(String charText) {
+//        if(charText.length()<=2)
+//            return;
+        charText = charText.toLowerCase(Locale.getDefault());
+        eventVOs.clear();
+        if (charText.length() == 0) {
+            eventVOs.addAll(searchList);
+        } else {
+            for (EventVO eventVO : searchList) {
+                if (eventVO.toString().contains(charText)) {
+                    eventVOs.add(eventVO);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -110,5 +146,11 @@ public class EventAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onEventEdit(View v, int position) {
         if (editListener != null)
             editListener.onEventEdit(v, position);
+    }
+
+    @Override
+    public void goToStory(View v, int position) {
+        if (goToStoryListener != null)
+            goToStoryListener.goToStory(v, position);
     }
 }

@@ -10,8 +10,8 @@
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
         android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -28,7 +28,8 @@
             <activity
             android:name=".SignUp"
             android:label="@string/title_activity_sign_up"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
         -->
         <activity
             android:name=".HomeActivity"
@@ -61,15 +62,20 @@
             android:name=".AddStory"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
-        <activity android:name=".ImageReaderPreviewActivity"
+        <activity
+            android:name=".ImageReaderPreviewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".ocrlib.OcrCaptureActivity"
+            android:label="Read Text"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".EventSearch"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
 
-        <activity
-            android:name=".ocrlib.OcrCaptureActivity"
-            android:screenOrientation="portrait"
-            android:label="Read Text" />
     </application>
 
 </manifest>

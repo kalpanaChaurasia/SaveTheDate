@@ -3,7 +3,7 @@
     <color name="colorPrimary">#47b603</color>
     <color name="colorPrimaryDark">#398e06 </color>
     <color name="colorAccent">#7dc24d</color>
-    <color name="bgColor">#eeeeee</color>
+    <color name="bgColor">#f5f5f5</color>
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
     <color name="elevationColor">#ffffff</color>
