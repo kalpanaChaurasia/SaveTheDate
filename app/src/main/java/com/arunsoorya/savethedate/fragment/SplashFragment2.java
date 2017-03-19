@@ -2,6 +2,7 @@ package com.arunsoorya.savethedate.fragment;
 
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,17 @@ public class SplashFragment2 extends Fragment {
         // Required empty public constructor
     }
 
+    private static final String ARG_POSITION = "ARG_POSITION";
+
+    public static SplashFragment2 getInstance(int position) {
+        SplashFragment2 splashFragment = new SplashFragment2();
+        Bundle bundle = new Bundle();
+        bundle.putInt(ARG_POSITION, position);
+        splashFragment.setArguments(bundle);
+        return splashFragment;
+    }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -27,4 +39,11 @@ public class SplashFragment2 extends Fragment {
         return inflater.inflate(R.layout.fragment_spash_fragment2, container, false);
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        final int position = getArguments().getInt(ARG_POSITION);
+
+        view.setTag(position); // saving index
+    }
 }
